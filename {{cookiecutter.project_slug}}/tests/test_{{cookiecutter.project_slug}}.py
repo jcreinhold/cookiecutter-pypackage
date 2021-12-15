@@ -20,7 +20,7 @@ from {{ cookiecutter.project_slug }} import cli
 
 
 @pytest.fixture
-def response():
+def response() -> None:
     """Sample pytest fixture.
 
     See more at: http://doc.pytest.org/en/latest/fixture.html
@@ -29,14 +29,14 @@ def response():
     # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
 
 
-def test_content(response):
+def test_content(response) -> None:
     """Sample pytest test function with the pytest fixture as an argument."""
     # from bs4 import BeautifulSoup
     # assert 'GitHub' in BeautifulSoup(response.content).title.string
 {%- if cookiecutter.command_line_interface|lower == 'click' %}
 
 
-def test_command_line_interface():
+def test_command_line_interface() -> None:
     """Test the CLI."""
     runner = CliRunner()
     result = runner.invoke(cli.main)
@@ -52,17 +52,17 @@ def test_command_line_interface():
 class Test{{ cookiecutter.project_slug|title }}(unittest.TestCase):
     """Tests for `{{ cookiecutter.project_slug }}` package."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures, if any."""
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Tear down test fixtures, if any."""
 
-    def test_000_something(self):
+    def test_000_something(self) -> None:
         """Test something."""
 {%- if cookiecutter.command_line_interface|lower == 'click' %}
 
-    def test_command_line_interface(self):
+    def test_command_line_interface(self) -> None:
         """Test the CLI."""
         runner = CliRunner()
         result = runner.invoke(cli.main)

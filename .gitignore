@@ -99,3 +99,7 @@ cookiecutter-pypackage-env/
 
 # IDE settings
 .vscode/
+.idea/
+
+# mypy
+.mypy_cache/

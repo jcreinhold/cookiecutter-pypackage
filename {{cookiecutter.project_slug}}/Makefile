@@ -50,13 +50,6 @@ clean-test: ## remove test and coverage artifacts
 lint/flake8: ## check style with flake8
 	flake8 {{ cookiecutter.project_slug }} tests
 
-{%- if cookiecutter.use_black == 'y' %}
-lint/black: ## check style with black
-	black --check {{ cookiecutter.project_slug }} tests
-{%- endif %}
-
-lint: lint/flake8{%- if cookiecutter.use_black == 'y' %} lint/black{%- endif %} ## check style
-
 test: ## run tests quickly with the default Python
 {%- if cookiecutter.use_pytest == 'y' %}
 	pytest
@@ -98,3 +91,13 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
+format:  ## run various code formatters/checks
+	black {{ cookiecutter.project_slug }}
+	isort {{ cookiecutter.project_slug }}
+	mypy {{ cookiecutter.project_slug }}
+	bandit -r {{ cookiecutter.project_slug }} -c pyproject.toml
+	black tests
+	isort tests
+	mypy tests
+	bandit -r tests -c pyproject.toml
