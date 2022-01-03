@@ -8,9 +8,9 @@ import sys
 import typing
 from contextlib import contextmanager
 
+import pytest
 from click.testing import CliRunner
 from cookiecutter.utils import rmtree
-import pytest
 
 
 @contextmanager
