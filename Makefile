@@ -25,7 +25,7 @@ format:
 	mypy hooks
 	mypy docs
 	mypy tests
-	snyk test --file=requirements_dev.txt --package-manager=pip
+	snyk test --file=requirements_dev.txt --package-manager=pip --fail-on=all
 
 test:
 	pytest
