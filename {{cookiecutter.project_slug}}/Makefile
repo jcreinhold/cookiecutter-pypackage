@@ -1,4 +1,24 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
+.PHONY: \
+	black \
+	clean \
+	clean-test \
+	clean-pyc \
+	clean-build \
+	coverage \
+	dist \
+	docs \
+	format \
+	help \
+	install \
+	isort \
+	lint/flake8 \
+	mypy \
+	release \
+	security \
+	servedocs \
+	test \
+	test-all
+
 .DEFAULT_GOAL := help
 
 define BROWSER_PYSCRIPT
@@ -23,8 +43,9 @@ export PRINT_HELP_PYSCRIPT
 
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
-help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+black:  ## run black on python code
+	black {{ cookiecutter.project_slug }}
+	black tests
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
@@ -47,19 +68,6 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
 
-lint/flake8: ## check style with flake8
-	flake8 {{ cookiecutter.project_slug }} tests
-
-test: ## run tests quickly with the default Python
-{%- if cookiecutter.use_pytest == 'y' %}
-	pytest
-{%- else %}
-	python setup.py test
-{%- endif %}
-
-test-all: ## run tests on every Python version with tox
-	tox
-
 coverage: ## check code coverage quickly with the default Python
 {%- if cookiecutter.use_pytest == 'y' %}
 	coverage run --source {{ cookiecutter.project_slug }} -m pytest
@@ -70,6 +78,11 @@ coverage: ## check code coverage quickly with the default Python
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
+dist: clean ## builds source and wheel package
+	python setup.py sdist
+	python setup.py bdist_wheel
+	ls -l dist
+
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/{{ cookiecutter.project_slug }}.rst
 	rm -f docs/modules.rst
@@ -78,27 +91,46 @@ docs: ## generate Sphinx HTML documentation, including API docs
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
 
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+help:
+	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-release: dist ## package and upload a release
-	twine upload dist/*
-
-dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
+format:  ## run various code formatters/checks
+	$(MAKE) black
+	$(MAKE) isort
+	$(MAKE) mypy
+	$(MAKE) security
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
-format:  ## run various code formatters/checks
-	black {{ cookiecutter.project_slug }}
+isort:  ## run isort on python code
 	isort {{ cookiecutter.project_slug }}
-	mypy {{ cookiecutter.project_slug }}
-	bandit -r {{ cookiecutter.project_slug }} -c pyproject.toml
-	black tests
 	isort tests
+
+lint/flake8: ## check style with flake8
+	flake8 {{ cookiecutter.project_slug }} tests
+
+mypy:  ## type check python code with mypy
+	mypy {{ cookiecutter.project_slug }}
 	mypy tests
+
+release: dist ## package and upload a release
+	twine upload dist/*
+
+security:  ## run various security checks on the project
+	bandit -r {{ cookiecutter.project_slug }} -c pyproject.toml
 	bandit -r tests -c pyproject.toml
 	snyk test --file=requirements_dev.txt --package-manager=pip --fail-on=all
+
+servedocs: docs ## compile the docs watching for changes
+	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+
+test: ## run tests quickly with the default Python
+{%- if cookiecutter.use_pytest == 'y' %}
+	pytest
+{%- else %}
+	python setup.py test
+{%- endif %}
+
+test-all: ## run tests on every Python version with tox
+	tox
